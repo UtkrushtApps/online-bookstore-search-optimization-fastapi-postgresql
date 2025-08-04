@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: quickbooks_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql/data
+    command: ["postgres"]
+  fastapi:
+    build: .
+    container_name: quickbooks_fastapi
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    working_dir: /root/task
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    volumes:
+      - .:/root/task
+    networks:
+      - qbooks-net
+networks:
+  qbooks-net:
+    driver: bridge
